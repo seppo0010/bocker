@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+option go_package = "github.com/seppo0010/bocker";
+
+package protocol;
+
+service Builder {
+  rpc Build(BuildRequest) returns (stream BuildReply) {}
+}
+
+message BuildRequest {
+  string cwdPath = 1;
+  string filePath = 2;
+}
+
+message BuildReply {
+  bytes stdout = 1;
+  bytes stderr = 2;
+  uint32 exitCode = 3;
+}
