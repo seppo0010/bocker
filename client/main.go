@@ -5,13 +5,18 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"net"
 
 	pb "github.com/seppo0010/bocker/protocol"
 	"google.golang.org/grpc"
 )
 
 func main() {
-	conn, err := grpc.Dial("localhost:12346", grpc.WithInsecure())
+	conn, err := grpc.Dial("/tmp/bocker.sock",
+		grpc.WithInsecure(),
+		grpc.WithContextDialer(func(_ context.Context, addr string) (net.Conn, error) {
+			return net.Dial("unix", addr)
+		}))
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}

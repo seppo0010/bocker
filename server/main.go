@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"io"
 	"log"
 	"net"
@@ -59,7 +58,7 @@ func (s *server) Build(in *pb.BuildRequest, bs pb.Builder_BuildServer) error {
 }
 
 func main() {
-	lis, err := net.Listen("tcp", fmt.Sprintf("localhost:%d", 12346))
+	lis, err := net.Listen("unix", "/tmp/bocker.sock")
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
