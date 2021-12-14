@@ -4,10 +4,11 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"log"
 	"net"
+	"os"
 
 	pb "github.com/seppo0010/bocker/protocol"
+	log "github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 )
 
@@ -18,7 +19,9 @@ func main() {
 			return net.Dial("unix", addr)
 		}))
 	if err != nil {
-		log.Fatalf("did not connect: %v", err)
+		log.WithFields(log.Fields{
+			"error": err.Error(),
+		}).Fatalf("failed to connect")
 	}
 	defer conn.Close()
 	c := pb.NewBuilderClient(conn)
@@ -30,5 +33,6 @@ func main() {
 			break
 		}
 		fmt.Printf("%#v\n", msg)
+		os.Stderr.Write(msg.Stderr)
 	}
 }

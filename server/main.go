@@ -2,12 +2,12 @@ package main
 
 import (
 	"io"
-	"log"
 	"net"
 	"os/exec"
 	"sync"
 
 	pb "github.com/seppo0010/bocker/protocol"
+	log "github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 )
 
@@ -60,12 +60,18 @@ func (s *server) Build(in *pb.BuildRequest, bs pb.Builder_BuildServer) error {
 func main() {
 	lis, err := net.Listen("unix", "/tmp/bocker.sock")
 	if err != nil {
-		log.Fatalf("failed to listen: %v", err)
+		log.WithFields(log.Fields{
+			"error": err.Error(),
+		}).Fatalf("failed to listen")
 	}
 	s := grpc.NewServer()
 	pb.RegisterBuilderServer(s, &server{})
-	log.Printf("server listening at %v", lis.Addr())
+	log.WithFields(log.Fields{
+		"address": lis.Addr(),
+	}).Info("server listening")
 	if err := s.Serve(lis); err != nil {
-		log.Fatalf("failed to serve: %v", err)
+		log.WithFields(log.Fields{
+			"error": err.Error(),
+		}).Fatalf("failed to serve")
 	}
 }
