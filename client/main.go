@@ -46,6 +46,11 @@ func main() {
 		if err == io.EOF {
 			break
 		}
+		if err != nil {
+			log.WithFields(log.Fields{
+				"error": err.Error(),
+			}).Fatalf("failed to receive message")
+		}
 		os.Stderr.Write(msg.Stderr)
 		os.Stdout.Write(msg.Stdout)
 		if msg.ExitCode != ^uint32(0) {
