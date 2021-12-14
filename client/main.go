@@ -5,6 +5,7 @@ import (
 	"io"
 	"net"
 	"os"
+	"path"
 
 	pb "github.com/seppo0010/bocker/protocol"
 	log "github.com/sirupsen/logrus"
@@ -25,7 +26,21 @@ func main() {
 	defer conn.Close()
 	c := pb.NewBuilderClient(conn)
 
-	stream, err := c.Build(context.Background(), &pb.BuildRequest{})
+	cwd, err := os.Getwd()
+	if err != nil {
+		log.WithFields(log.Fields{
+			"error": err.Error(),
+		}).Fatalf("failed to get cwd")
+	}
+	stream, err := c.Build(context.Background(), &pb.BuildRequest{
+		CwdPath:  cwd,
+		FilePath: path.Join(cwd, "Bockerfile"),
+	})
+	if err != nil {
+		log.WithFields(log.Fields{
+			"error": err.Error(),
+		}).Fatalf("failed to send request")
+	}
 	for {
 		msg, err := stream.Recv()
 		if err == io.EOF {
