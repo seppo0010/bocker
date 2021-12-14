@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"io"
 	"net"
 	"os"
@@ -32,7 +31,10 @@ func main() {
 		if err == io.EOF {
 			break
 		}
-		fmt.Printf("%#v\n", msg)
 		os.Stderr.Write(msg.Stderr)
+		os.Stdout.Write(msg.Stdout)
+		if msg.ExitCode != ^uint32(0) {
+			os.Exit(int(msg.ExitCode))
+		}
 	}
 }
