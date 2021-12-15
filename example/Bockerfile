@@ -1,0 +1,6 @@
+MAINTAINER John Doe <example@example.com>
+COPY ./hello-world.sh ./
+RUN echo '#!/bin/bash' > foobar.sh && echo "echo foo bar" >> foobar.sh && chmod a+x foobar.sh
+
+
+CMD ./hello-world.sh

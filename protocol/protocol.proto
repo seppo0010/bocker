@@ -11,6 +11,7 @@ service Builder {
 message BuildRequest {
   string cwdPath = 1;
   string filePath = 2;
+  string tag = 3;
 }
 
 message BuildReply {
