@@ -19,6 +19,7 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type BockerClient interface {
 	Build(ctx context.Context, in *BuildRequest, opts ...grpc.CallOption) (Bocker_BuildClient, error)
+	Run(ctx context.Context, in *RunRequest, opts ...grpc.CallOption) (Bocker_RunClient, error)
 }
 
 type bockerClient struct {
@@ -45,7 +46,7 @@ func (c *bockerClient) Build(ctx context.Context, in *BuildRequest, opts ...grpc
 }
 
 type Bocker_BuildClient interface {
-	Recv() (*BuildReply, error)
+	Recv() (*ExecReply, error)
 	grpc.ClientStream
 }
 
@@ -53,8 +54,40 @@ type bockerBuildClient struct {
 	grpc.ClientStream
 }
 
-func (x *bockerBuildClient) Recv() (*BuildReply, error) {
-	m := new(BuildReply)
+func (x *bockerBuildClient) Recv() (*ExecReply, error) {
+	m := new(ExecReply)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+func (c *bockerClient) Run(ctx context.Context, in *RunRequest, opts ...grpc.CallOption) (Bocker_RunClient, error) {
+	stream, err := c.cc.NewStream(ctx, &Bocker_ServiceDesc.Streams[1], "/protocol.Bocker/Run", opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &bockerRunClient{stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+type Bocker_RunClient interface {
+	Recv() (*ExecReply, error)
+	grpc.ClientStream
+}
+
+type bockerRunClient struct {
+	grpc.ClientStream
+}
+
+func (x *bockerRunClient) Recv() (*ExecReply, error) {
+	m := new(ExecReply)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
 	}
@@ -66,6 +99,7 @@ func (x *bockerBuildClient) Recv() (*BuildReply, error) {
 // for forward compatibility
 type BockerServer interface {
 	Build(*BuildRequest, Bocker_BuildServer) error
+	Run(*RunRequest, Bocker_RunServer) error
 	mustEmbedUnimplementedBockerServer()
 }
 
@@ -75,6 +109,9 @@ type UnimplementedBockerServer struct {
 
 func (UnimplementedBockerServer) Build(*BuildRequest, Bocker_BuildServer) error {
 	return status.Errorf(codes.Unimplemented, "method Build not implemented")
+}
+func (UnimplementedBockerServer) Run(*RunRequest, Bocker_RunServer) error {
+	return status.Errorf(codes.Unimplemented, "method Run not implemented")
 }
 func (UnimplementedBockerServer) mustEmbedUnimplementedBockerServer() {}
 
@@ -98,7 +135,7 @@ func _Bocker_Build_Handler(srv interface{}, stream grpc.ServerStream) error {
 }
 
 type Bocker_BuildServer interface {
-	Send(*BuildReply) error
+	Send(*ExecReply) error
 	grpc.ServerStream
 }
 
@@ -106,7 +143,28 @@ type bockerBuildServer struct {
 	grpc.ServerStream
 }
 
-func (x *bockerBuildServer) Send(m *BuildReply) error {
+func (x *bockerBuildServer) Send(m *ExecReply) error {
+	return x.ServerStream.SendMsg(m)
+}
+
+func _Bocker_Run_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(RunRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(BockerServer).Run(m, &bockerRunServer{stream})
+}
+
+type Bocker_RunServer interface {
+	Send(*ExecReply) error
+	grpc.ServerStream
+}
+
+type bockerRunServer struct {
+	grpc.ServerStream
+}
+
+func (x *bockerRunServer) Send(m *ExecReply) error {
 	return x.ServerStream.SendMsg(m)
 }
 
@@ -121,6 +179,11 @@ var Bocker_ServiceDesc = grpc.ServiceDesc{
 		{
 			StreamName:    "Build",
 			Handler:       _Bocker_Build_Handler,
+			ServerStreams: true,
+		},
+		{
+			StreamName:    "Run",
+			Handler:       _Bocker_Run_Handler,
 			ServerStreams: true,
 		},
 	},

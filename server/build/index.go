@@ -120,7 +120,12 @@ func Run(in *pb.BuildRequest, conf *shared.Config) (string, error) {
 	}
 	hash := head.Object.Id().String()
 	if tag != "" {
-		repo.Tags.CreateLightweight(tag, head, true)
+		_, err := repo.Tags.CreateLightweight(tag, head, true)
+		if err != nil {
+			log.WithFields(log.Fields{
+				"error": err.Error(),
+			}).Warn("failed to create tag")
+		}
 	}
 	return hash, nil
 }

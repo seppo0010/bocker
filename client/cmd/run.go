@@ -4,7 +4,6 @@ import (
 	"context"
 	"io"
 	"os"
-	"path"
 
 	pb "github.com/seppo0010/bocker/protocol"
 	log "github.com/sirupsen/logrus"
@@ -12,23 +11,20 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var buildCmd = &cobra.Command{
-	Use:   "build",
+var runCmd = &cobra.Command{
+	Use:   "run",
 	Short: "",
-	Run:   SendBuild,
+	Run:   SendRun,
 }
 
 func init() {
-	rootCmd.AddCommand(buildCmd)
+	rootCmd.AddCommand(runCmd)
 }
 
-func SendBuild(cmd *cobra.Command, args []string) {
+func SendRun(cmd *cobra.Command, args []string) {
 	c := cmd.Context().Value(GRPC).(pb.BockerClient)
-	cwd := path.Join(cmd.Context().Value(CWD).(string), "example")
-	stream, err := c.Build(context.Background(), &pb.BuildRequest{
-		CwdPath:  cwd,
-		FilePath: path.Join(cwd, "Bockerfile"),
-		Tag:      "test",
+	stream, err := c.Run(context.Background(), &pb.RunRequest{
+		Tag: "test",
 	})
 	if err != nil {
 		log.WithFields(log.Fields{

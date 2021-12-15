@@ -5,7 +5,8 @@ option go_package = "github.com/seppo0010/bocker";
 package protocol;
 
 service Bocker {
-  rpc Build(BuildRequest) returns (stream BuildReply) {}
+  rpc Build(BuildRequest) returns (stream ExecReply) {}
+  rpc Run(RunRequest) returns (stream ExecReply) {}
 }
 
 message BuildRequest {
@@ -14,7 +15,11 @@ message BuildRequest {
   string tag = 3;
 }
 
-message BuildReply {
+message RunRequest {
+  string tag = 1;
+}
+
+message ExecReply {
   bytes stdout = 1;
   bytes stderr = 2;
   uint32 exitCode = 3;

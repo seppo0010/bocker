@@ -22,7 +22,6 @@ func getBuildTree(conf *shared.Config, repo *git.Repository) (*git.Tree, error) 
 	}
 
 	err = filepath.WalkDir(conf.BuildPath, func(path string, d fs.DirEntry, err error) error {
-		println(path)
 		if err != nil {
 			// FIXME
 			panic(err.Error())
