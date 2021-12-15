@@ -32,6 +32,21 @@ func getConfig() (*shared.Config, func(), error) {
 		}, nil
 }
 
+func (s *Server) createReplyChannel(bs bocker.Bocker_RunServer) chan<- *pb.ExecReply {
+	sendMessageChan := make(chan *pb.ExecReply)
+	go func() {
+		for message := range sendMessageChan {
+			err := bs.SendMsg(message)
+			if err != nil {
+				log.WithFields(log.Fields{
+					"error": err.Error(),
+				}).Error("failed to send message")
+			}
+		}
+	}()
+	return sendMessageChan
+}
+
 func (s *Server) Build(in *pb.BuildRequest, bs bocker.Bocker_BuildServer) error {
 	conf, cleanup, err := getConfig()
 	if err != nil {
@@ -48,7 +63,8 @@ func (s *Server) Run(in *pb.RunRequest, bs bocker.Bocker_RunServer) error {
 		return err
 	}
 	defer cleanup()
-	err = run.Run(in, conf)
+	outchan := s.createReplyChannel(bs)
+	err = run.Run(in, conf, outchan)
 	return err
 }
 
