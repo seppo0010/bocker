@@ -2,8 +2,6 @@ package cmd
 
 import (
 	"context"
-	"io"
-	"os"
 	"path"
 
 	pb "github.com/seppo0010/bocker/protocol"
@@ -35,20 +33,5 @@ func SendBuild(cmd *cobra.Command, args []string) {
 			"error": err.Error(),
 		}).Fatalf("failed to send request")
 	}
-	for {
-		msg, err := stream.Recv()
-		if err == io.EOF {
-			break
-		}
-		if err != nil {
-			log.WithFields(log.Fields{
-				"error": err.Error(),
-			}).Fatalf("failed to receive message")
-		}
-		os.Stderr.Write(msg.Stderr)
-		os.Stdout.Write(msg.Stdout)
-		if msg.ExitCode != ^uint32(0) {
-			os.Exit(int(msg.ExitCode))
-		}
-	}
+	readOutput(stream)
 }
