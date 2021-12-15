@@ -5,6 +5,7 @@ import (
 	"net"
 	"os"
 
+	bocker "github.com/seppo0010/bocker/protocol"
 	pb "github.com/seppo0010/bocker/protocol"
 	"github.com/seppo0010/bocker/server/build"
 	"github.com/seppo0010/bocker/shared"
@@ -13,7 +14,7 @@ import (
 )
 
 type Server struct {
-	pb.UnimplementedBuilderServer
+	pb.UnimplementedBockerServer
 }
 
 func getConfig() (*shared.Config, func(), error) {
@@ -36,7 +37,7 @@ func getConfig() (*shared.Config, func(), error) {
 		}, nil
 }
 
-func (s *Server) Build(in *pb.BuildRequest, bs pb.Builder_BuildServer) error {
+func (s *Server) Build(in *pb.BuildRequest, bs bocker.Bocker_BuildServer) error {
 	fmt.Printf("%#v\n", in)
 	getConfig()
 	conf, cleanup, err := getConfig()
@@ -56,7 +57,7 @@ func main() {
 		}).Fatalf("failed to listen")
 	}
 	s := grpc.NewServer()
-	pb.RegisterBuilderServer(s, &Server{})
+	pb.RegisterBockerServer(s, &Server{})
 	log.WithFields(log.Fields{
 		"address": lis.Addr(),
 	}).Info("server listening")

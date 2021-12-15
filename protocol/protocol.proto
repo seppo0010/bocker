@@ -4,7 +4,7 @@ option go_package = "github.com/seppo0010/bocker";
 
 package protocol;
 
-service Builder {
+service Bocker {
   rpc Build(BuildRequest) returns (stream BuildReply) {}
 }
 

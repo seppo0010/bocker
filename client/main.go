@@ -23,7 +23,7 @@ func main() {
 		}).Fatalf("failed to connect")
 	}
 	defer conn.Close()
-	c := pb.NewBuilderClient(conn)
+	c := pb.NewBockerClient(conn)
 
 	cwd, err := os.Getwd()
 	if err != nil {

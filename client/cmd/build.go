@@ -23,7 +23,7 @@ var rootCmd = &cobra.Command{
 }
 
 func SendBuild(cmd *cobra.Command, args []string) {
-	c := cmd.Context().Value(GRPC).(pb.BuilderClient)
+	c := cmd.Context().Value(GRPC).(pb.BockerClient)
 	cwd := path.Join(cmd.Context().Value(CWD).(string), "example")
 	stream, err := c.Build(context.Background(), &pb.BuildRequest{
 		CwdPath:  cwd,

@@ -14,27 +14,27 @@ import (
 // Requires gRPC-Go v1.32.0 or later.
 const _ = grpc.SupportPackageIsVersion7
 
-// BuilderClient is the client API for Builder service.
+// BockerClient is the client API for Bocker service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type BuilderClient interface {
-	Build(ctx context.Context, in *BuildRequest, opts ...grpc.CallOption) (Builder_BuildClient, error)
+type BockerClient interface {
+	Build(ctx context.Context, in *BuildRequest, opts ...grpc.CallOption) (Bocker_BuildClient, error)
 }
 
-type builderClient struct {
+type bockerClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewBuilderClient(cc grpc.ClientConnInterface) BuilderClient {
-	return &builderClient{cc}
+func NewBockerClient(cc grpc.ClientConnInterface) BockerClient {
+	return &bockerClient{cc}
 }
 
-func (c *builderClient) Build(ctx context.Context, in *BuildRequest, opts ...grpc.CallOption) (Builder_BuildClient, error) {
-	stream, err := c.cc.NewStream(ctx, &Builder_ServiceDesc.Streams[0], "/protocol.Builder/Build", opts...)
+func (c *bockerClient) Build(ctx context.Context, in *BuildRequest, opts ...grpc.CallOption) (Bocker_BuildClient, error) {
+	stream, err := c.cc.NewStream(ctx, &Bocker_ServiceDesc.Streams[0], "/protocol.Bocker/Build", opts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &builderBuildClient{stream}
+	x := &bockerBuildClient{stream}
 	if err := x.ClientStream.SendMsg(in); err != nil {
 		return nil, err
 	}
@@ -44,16 +44,16 @@ func (c *builderClient) Build(ctx context.Context, in *BuildRequest, opts ...grp
 	return x, nil
 }
 
-type Builder_BuildClient interface {
+type Bocker_BuildClient interface {
 	Recv() (*BuildReply, error)
 	grpc.ClientStream
 }
 
-type builderBuildClient struct {
+type bockerBuildClient struct {
 	grpc.ClientStream
 }
 
-func (x *builderBuildClient) Recv() (*BuildReply, error) {
+func (x *bockerBuildClient) Recv() (*BuildReply, error) {
 	m := new(BuildReply)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
@@ -61,66 +61,66 @@ func (x *builderBuildClient) Recv() (*BuildReply, error) {
 	return m, nil
 }
 
-// BuilderServer is the server API for Builder service.
-// All implementations must embed UnimplementedBuilderServer
+// BockerServer is the server API for Bocker service.
+// All implementations must embed UnimplementedBockerServer
 // for forward compatibility
-type BuilderServer interface {
-	Build(*BuildRequest, Builder_BuildServer) error
-	mustEmbedUnimplementedBuilderServer()
+type BockerServer interface {
+	Build(*BuildRequest, Bocker_BuildServer) error
+	mustEmbedUnimplementedBockerServer()
 }
 
-// UnimplementedBuilderServer must be embedded to have forward compatible implementations.
-type UnimplementedBuilderServer struct {
+// UnimplementedBockerServer must be embedded to have forward compatible implementations.
+type UnimplementedBockerServer struct {
 }
 
-func (UnimplementedBuilderServer) Build(*BuildRequest, Builder_BuildServer) error {
+func (UnimplementedBockerServer) Build(*BuildRequest, Bocker_BuildServer) error {
 	return status.Errorf(codes.Unimplemented, "method Build not implemented")
 }
-func (UnimplementedBuilderServer) mustEmbedUnimplementedBuilderServer() {}
+func (UnimplementedBockerServer) mustEmbedUnimplementedBockerServer() {}
 
-// UnsafeBuilderServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to BuilderServer will
+// UnsafeBockerServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to BockerServer will
 // result in compilation errors.
-type UnsafeBuilderServer interface {
-	mustEmbedUnimplementedBuilderServer()
+type UnsafeBockerServer interface {
+	mustEmbedUnimplementedBockerServer()
 }
 
-func RegisterBuilderServer(s grpc.ServiceRegistrar, srv BuilderServer) {
-	s.RegisterService(&Builder_ServiceDesc, srv)
+func RegisterBockerServer(s grpc.ServiceRegistrar, srv BockerServer) {
+	s.RegisterService(&Bocker_ServiceDesc, srv)
 }
 
-func _Builder_Build_Handler(srv interface{}, stream grpc.ServerStream) error {
+func _Bocker_Build_Handler(srv interface{}, stream grpc.ServerStream) error {
 	m := new(BuildRequest)
 	if err := stream.RecvMsg(m); err != nil {
 		return err
 	}
-	return srv.(BuilderServer).Build(m, &builderBuildServer{stream})
+	return srv.(BockerServer).Build(m, &bockerBuildServer{stream})
 }
 
-type Builder_BuildServer interface {
+type Bocker_BuildServer interface {
 	Send(*BuildReply) error
 	grpc.ServerStream
 }
 
-type builderBuildServer struct {
+type bockerBuildServer struct {
 	grpc.ServerStream
 }
 
-func (x *builderBuildServer) Send(m *BuildReply) error {
+func (x *bockerBuildServer) Send(m *BuildReply) error {
 	return x.ServerStream.SendMsg(m)
 }
 
-// Builder_ServiceDesc is the grpc.ServiceDesc for Builder service.
+// Bocker_ServiceDesc is the grpc.ServiceDesc for Bocker service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var Builder_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "protocol.Builder",
-	HandlerType: (*BuilderServer)(nil),
+var Bocker_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "protocol.Bocker",
+	HandlerType: (*BockerServer)(nil),
 	Methods:     []grpc.MethodDesc{},
 	Streams: []grpc.StreamDesc{
 		{
 			StreamName:    "Build",
-			Handler:       _Builder_Build_Handler,
+			Handler:       _Bocker_Build_Handler,
 			ServerStreams: true,
 		},
 	},
